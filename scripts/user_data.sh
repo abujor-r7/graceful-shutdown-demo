@@ -38,7 +38,7 @@ After=network.target
 Type=simple
 ExecStart=/opt/fake-app/bin/runner.sh 240
 KillSignal=SIGTERM
-TimeoutStopSec=300
+TimeoutStopSec=20
 Restart=no
 
 [Install]

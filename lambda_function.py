@@ -32,11 +32,12 @@ def lambda_handler(event, context):
     if not allowed:
         return {"statusCode": 403, "body": f"ASG {asg_name} is not allowed for lifecycle configuration"}
 
+    hook_name = os.environ.get("LIFECYCLE_HOOK_NAME", "graceful-terminate")
     autoscaling.put_lifecycle_hook(
         AutoScalingGroupName=asg_name,
-        LifecycleHookName="graceful-terminate",
+        LifecycleHookName=hook_name,
         LifecycleTransition="autoscaling:EC2_INSTANCE_TERMINATING",
-        HeartbeatTimeout=int(os.getenv("HEARTBEAT_TIMEOUT", "900")),
+        HeartbeatTimeout=int(os.environ.get("HEARTBEAT_TIMEOUT", "900")),
         DefaultResult="CONTINUE",
     )
     print(f"SUCCESS: Hook applied to {asg_name}")

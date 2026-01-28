@@ -5,7 +5,7 @@ data "archive_file" "lambda_zip" {
 }
 
 resource "aws_lambda_function" "configurator" {
-  function_name    = "${var.prefix}-config-hook"
+  function_name    = "${var.prefix}-lifecycle-hook-handler"
   role             = aws_iam_role.lambda_role.arn
   handler          = "lambda_function.lambda_handler"
   runtime          = "python3.11"
@@ -17,7 +17,8 @@ resource "aws_lambda_function" "configurator" {
     variables = {
       ALLOWED_ASG_PREFIXES = var.prefix
       ALLOWED_ASGS         = var.allowed_asgs
-      HEARTBEAT_TIMEOUT    = "900"
+      HEARTBEAT_TIMEOUT    = var.heartbeat_timeout
+      LIFECYCLE_HOOK_NAME  = var.lifecycle_hook_name
     }
   }
 }

@@ -8,7 +8,7 @@ assumeRole: "{{ AutomationAssumeRole }}"
 parameters:
   InstanceId: { type: String }
   AutoScalingGroupName: { type: String }
-  LifecycleHookName: { type: String }
+  LifecycleHookName: { type: String, default: "${var.lifecycle_hook_name}" }
   LifecycleActionToken: { type: String }
   ServiceName: { type: String }
   AutomationAssumeRole: { type: String }
@@ -23,11 +23,11 @@ mainSteps:
           - |
             UNIT="{{ ServiceName }}.service"
             sudo mkdir -p "/etc/systemd/system/$UNIT.d"
-            echo -e "[Service]\nTimeoutStopSec=300s" | sudo tee "/etc/systemd/system/$UNIT.d/override.conf"
+            printf "[Service]\nTimeoutStopSec=300s\n" | sudo tee "/etc/systemd/system/$UNIT.d/override.conf"
             sudo systemctl daemon-reload
             sudo systemctl stop "$UNIT" || true
-            # Wait for service to stop (up to 10 mins)
-            for i in {1..60}; do systemctl is-active --quiet "$UNIT" || exit 0; sleep 10; done
+            # Wait for service to stop (up to 15 mins)
+            for i in {1..90}; do systemctl is-active --quiet "$UNIT" || exit 0; sleep 10; done
             exit 1
   - name: CompleteLifecycle
     action: aws:executeAwsApi
@@ -48,6 +48,8 @@ resource "aws_cloudwatch_event_rule" "terminate" {
     "source": ["aws.autoscaling"],
     "detail-type": ["EC2 Instance-terminate Lifecycle Action"],
     "detail": {
+      "LifecycleHookName": [var.lifecycle_hook_name],
+      "LifecycleTransition": ["autoscaling:EC2_INSTANCE_TERMINATING"],
       "AutoScalingGroupName": [{
         "prefix": var.prefix
       }]

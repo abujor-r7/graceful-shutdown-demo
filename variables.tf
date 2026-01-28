@@ -1,3 +1,15 @@
+# Name of the ASG lifecycle hook
+variable "lifecycle_hook_name" {
+  type        = string
+  description = "Name of the ASG lifecycle hook."
+  default     = "graceful-terminate"
+}
+# Lambda heartbeat timeout for lifecycle hook
+variable "heartbeat_timeout" {
+  type        = string
+  description = "Heartbeat timeout (seconds) for ASG lifecycle hook."
+  default     = "900"
+}
 # Account ID for IAM role ARNs (for cross-account or reuse)
 variable "account_id" {
   type        = string
