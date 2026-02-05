@@ -29,7 +29,12 @@ resource "aws_cloudwatch_event_rule" "asg_create" {
     "detail-type": ["AWS API Call via CloudTrail"],
     "detail": {
       "eventSource": ["autoscaling.amazonaws.com"],
-      "eventName":   ["CreateAutoScalingGroup"]
+      "eventName":   ["CreateAutoScalingGroup"],
+      "requestParameters": {
+        "autoScalingGroupName": [{
+          "prefix": var.prefix
+        }]
+      }
     }
   })
 }
